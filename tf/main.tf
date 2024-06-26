@@ -104,6 +104,13 @@ resource "aws_instance" "runner" {
   provisioner "file" {
     source      = "./remote-exec.sh"
     destination = "/tmp/setup_script.sh"
+
+    connection {
+      type     = "ssh"
+      user     = "ubuntu"
+      private_key = file(var.pem_path)
+      host     = self.public_ip
+    }
   }
   provisioner "remote-exec" {
     inline = [
