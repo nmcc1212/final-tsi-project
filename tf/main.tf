@@ -94,8 +94,9 @@ resource "aws_instance" "runner" {
   provisioner "remote-exec" {
     inline = [
       "export TESTSECRET=${var.test}",
+      "cd $HOME",
       "touch test.txt",
-      "cat $TESTSECRET > test.txt",
+      "echo $TESTSECRET > test.txt",
     ]
     connection {
       type = "ssh"
