@@ -84,6 +84,7 @@ resource "aws_instance" "runner" {
     sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
     sudo usermod -aG docker ubuntu
     sudo usermod -aG docker root
+
     export AUTH0_SECRET=${var.AUTH0_SECRET}
     export AUTH0_CLIENT_ID=${var.AUTH0_CLIENT_ID}
     export AUTH0_CLIENT_SECRET=${var.AUTH0_CLIENT_SECRET}
@@ -100,9 +101,13 @@ resource "aws_instance" "runner" {
   root_block_device {
     volume_size = 30 # Specify the root volume size
   }
+  provisioner "file" {
+    source      = "./remote-exec.sh"
+    destination = "/tmp/setup_script.sh"
+  }
   provisioner "remote-exec" {
     inline = [
-      "ls",
+      "",
     ]
     connection {
       type = "ssh"
