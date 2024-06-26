@@ -101,8 +101,7 @@ resource "aws_instance" "runner" {
       "export AUTH0_BASE_URL=${vars.AUTH0_BASE_URL}",
       "git clone https://github.com/nmcc1212/final-tsi-project.git",
       "cd final-tsi-project/tf",
-      "docker compose up"
-
+      "docker compose up",
     ]
     connection {
       type = "ssh"
