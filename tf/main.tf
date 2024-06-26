@@ -94,6 +94,7 @@ resource "aws_instance" "runner" {
   provisioner "remote-exec" {
     inline = [
       "export TESTSECRET=${var.test}",
+      "touch test.txt",
       "cat $TESTSECRET > test.txt",
     ]
     connection {
