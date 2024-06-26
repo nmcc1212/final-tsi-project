@@ -26,12 +26,12 @@ variable "secret_key" {
   sensitive = true
 }
 
-variable "AWS_CLIENT_ID" {
+variable "MACHINE_IDENTITY_CLIENT_ID" {
   type = string
   sensitive = true
 }
 
-variable "AWS_CLIENT_SECRET" {
+variable "MACHINE_IDENTITY_CLIENT_SECRET" {
   type = string
   sensitive = true
 }
