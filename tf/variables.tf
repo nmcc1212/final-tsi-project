@@ -64,3 +64,6 @@ variable "MONGO_URI" {
 variable "test" {
   type = string
 }
+variable "pem_path" {
+  type = string
+}

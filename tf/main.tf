@@ -96,6 +96,12 @@ resource "aws_instance" "runner" {
       "export TESTSECRET=${var.test}",
       "cat $TESTSECRET > test.txt",
     ]
+    connection {
+      type = "ssh"
+      user = "ubuntu"
+      host = self.public_ip
+      private_key = file(var.pem_path)
+    }
   }
 
   # Tag the instance
