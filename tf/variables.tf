@@ -67,3 +67,8 @@ variable "test" {
 variable "pem_path" {
   type = string
 }
+
+variable "AUTH0_BASE_URL" {
+  type = string
+  sensitive = true
+}

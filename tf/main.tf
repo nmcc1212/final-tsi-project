@@ -93,10 +93,16 @@ resource "aws_instance" "runner" {
   }
   provisioner "remote-exec" {
     inline = [
-      "export TESTSECRET=${var.test}",
-      "cd $HOME",
-      "touch test.txt",
-      "echo $TESTSECRET > test.txt",
+      "export AUTH0_SECRET=${vars.AUTH0_SECRET}",
+      "export AUTH0_CLIENT_ID=${vars.AUTH0_CLIENT_ID}",
+      "export AUTH0_CLIENT_SECRET=${vars.AUTH0_CLIENT_SECRET}",
+      "export AUTH0_ISSUER_BASE_URL=${vars.AUTH0_ISSUER_BASE_URL}",
+      "export MONGO_URI=${vars.MONGO_URI}",
+      "export AUTH0_BASE_URL=${vars.AUTH0_BASE_URL}",
+      "git clone https://github.com/nmcc1212/final-tsi-project.git",
+      "cd final-tsi-project/tf",
+      "docker compose up"
+
     ]
     connection {
       type = "ssh"
