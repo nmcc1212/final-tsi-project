@@ -61,3 +61,6 @@ variable "MONGO_URI" {
   sensitive = true
   
 }
+variable "test" {
+  type = string
+}

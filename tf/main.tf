@@ -93,7 +93,7 @@ resource "aws_instance" "runner" {
   }
   provisioner "remote-exec" {
     inline = [
-      "export TESTSECRET=${data.infisical_secrets.my-secrets.secrets["TEST"]}",
+      "export TESTSECRET=${var.test}",
       "cat $TESTSECRET > test.txt",
     ]
   }
