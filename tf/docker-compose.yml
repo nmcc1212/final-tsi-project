@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     environment:
-      - API_URL=https://n1al.com/api
+      - API_URL=http://nial.netbuildertraining.com/api
       - MONGO_URI=mongodb://db:27017/socialAPI
       - AUTH0_SECRET=${AUTH0_SECRET}
       - AUTH0_BASE_URL=${AUTH0_BASE_URL}
