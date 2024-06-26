@@ -35,3 +35,29 @@ variable "MACHINE_IDENTITY_CLIENT_SECRET" {
   type = string
   sensitive = true
 }
+
+variable "AUTH0_CLIENT_ID" {
+  type = string
+  sensitive = true
+}
+
+variable "AUTH0_CLIENT_SECRET" {
+  type = string
+  sensitive = true
+}
+
+variable "AUTH0_ISSUER_BASE_URL" {
+  type = string
+  sensitive = true
+}
+variable "AUTH0_SECRET" {
+  type = string
+  sensitive = true
+  
+}
+
+variable "MONGO_URI" {
+  type = string
+  sensitive = true
+  
+}
