@@ -114,7 +114,7 @@ resource "aws_instance" "runner" {
   }
   provisioner "remote-exec" {
     inline = [
-      "",
+      "sh /tmp/setup_script.sh",
     ]
     connection {
       type = "ssh"
