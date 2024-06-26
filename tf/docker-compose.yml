@@ -20,8 +20,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-      - ./mongo/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
-      - ./mongo/socialAPI.posts.json:/docker-entrypoint-initdb.d/socialAPI.posts.json:ro
+      - ../mongo/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+      - ../mongo/socialAPI.posts.json:/docker-entrypoint-initdb.d/socialAPI.posts.json:ro
 
 volumes:
   mongo-data:
