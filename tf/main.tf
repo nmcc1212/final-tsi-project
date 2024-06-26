@@ -84,6 +84,15 @@ resource "aws_instance" "runner" {
     sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
     sudo usermod -aG docker ubuntu
     sudo usermod -aG docker root
+    export AUTH0_SECRET=${var.AUTH0_SECRET}
+    export AUTH0_CLIENT_ID=${var.AUTH0_CLIENT_ID}
+    export AUTH0_CLIENT_SECRET=${var.AUTH0_CLIENT_SECRET}
+    export AUTH0_ISSUER_BASE_URL=${var.AUTH0_ISSUER_BASE_URL}
+    export MONGO_URI=${var.MONGO_URI}
+    export AUTH0_BASE_URL=${var.AUTH0_BASE_URL}
+    git clone https://github.com/nmcc1212/final-tsi-project.git
+    cd final-tsi-project/tf
+    docker compose up
   EOF
   # Load user data script
   key_name = "bae-tsi-apprentice-plus"
@@ -93,15 +102,7 @@ resource "aws_instance" "runner" {
   }
   provisioner "remote-exec" {
     inline = [
-      "export AUTH0_SECRET=${var.AUTH0_SECRET}",
-      "export AUTH0_CLIENT_ID=${var.AUTH0_CLIENT_ID}",
-      "export AUTH0_CLIENT_SECRET=${var.AUTH0_CLIENT_SECRET}",
-      "export AUTH0_ISSUER_BASE_URL=${var.AUTH0_ISSUER_BASE_URL}",
-      "export MONGO_URI=${var.MONGO_URI}",
-      "export AUTH0_BASE_URL=${var.AUTH0_BASE_URL}",
-      "git clone https://github.com/nmcc1212/final-tsi-project.git",
-      "cd final-tsi-project/tf",
-      "docker compose up",
+      "ls",
     ]
     connection {
       type = "ssh"
