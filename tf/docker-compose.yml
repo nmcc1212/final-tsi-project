@@ -4,8 +4,6 @@ services:
     ports:
       - "3000:3000"
     container_name: icds-frontend
-    env_file:
-      - .env
     environment:
       - API_URL=http://nial.netbuildertraining.com/api
       - MONGO_URI=mongodb://db:27017/socialAPI
