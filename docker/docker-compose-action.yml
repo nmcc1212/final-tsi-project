@@ -7,11 +7,6 @@ services:
     environment:
       - API_URL=${API_URL}
       - MONGO_URI=${MONGO_URI}
-      - AUTH0_SECRET=${AUTH0_SECRET}
-      - AUTH0_BASE_URL=${AUTH0_BASE_URL}
-      - AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}
-      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
-      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
     depends_on:
       - db
 
@@ -23,8 +18,9 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-      # - ./mongo/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
-      # - ./mongo/socialAPI.posts.json:/docker-entrypoint-initdb.d/socialAPI.posts.json:ro
+      - ./mongo/initv1.sh:/docker-entrypoint-initdb.d/init.sh:ro
+      - ./mongo/v1.socialAPI.posts.json:/docker-entrypoint-initdb.d/v1.socialAPI.posts.json:ro
+      - ./mongo/v1.socialAPI.users.json:/docker-entrypoint-initdb.d/v1.socialAPI.users.json:ro
 
 volumes:
   mongo-data:

@@ -53,7 +53,6 @@ variable "AUTH0_ISSUER_BASE_URL" {
 variable "AUTH0_SECRET" {
   type = string
   sensitive = true
-  
 }
 
 variable "MONGO_URI" {
