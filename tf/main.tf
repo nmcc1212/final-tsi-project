@@ -74,6 +74,16 @@ resource "aws_instance" "runner" {
   instance_type          = "t2.medium"                                     #  the instance type
   user_data              = <<-EOF
     #!/bin/bash
+    sudo apt-get update -y
+    sudo apt-get install ca-certificates curl wget gnupg nginx -y
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update -y
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+    sudo usermod -aG docker ubuntu
+    sudo usermod -aG docker root
 
     export AUTH0_SECRET=${var.AUTH0_SECRET}
     export AUTH0_CLIENT_ID=${var.AUTH0_CLIENT_ID}
@@ -81,6 +91,9 @@ resource "aws_instance" "runner" {
     export AUTH0_ISSUER_BASE_URL=${var.AUTH0_ISSUER_BASE_URL}
     export MONGO_URI=${var.MONGO_URI}
     export AUTH0_BASE_URL=${var.AUTH0_BASE_URL}
+    git clone https://github.com/nmcc1212/final-tsi-project.git
+    cd final-tsi-project/tf
+    docker compose up
   EOF
   # Load user data script
   key_name = "bae-tsi-apprentice-plus"
