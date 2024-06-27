@@ -1,3 +1,4 @@
+sleep 120
 sudo chmod a+wx /etc/nginx/sites-available
 PRIVATE_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 cat <<EOL > /etc/nginx/sites-available/nial.netbuildertraining.com
