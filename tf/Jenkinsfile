@@ -1,16 +1,29 @@
 pipeline {
     agent any
-
     triggers {
         // Poll the GitHub repository every 5 minutes
         pollSCM('H/5 * * * *')
     }
-
     stages {
         stage('Checkout') {
             steps {
                 // Checkout the code from the GitHub repository
                 git branch: 'main', url: 'https://github.com/nmcc1212/final-tsi-project.git'
+            }
+        }
+        stage('Prepare Environment') {
+            steps {
+                withCredentials([file(credentialsId: 'pem', variable: 'PEM_FILE')]) {
+                    sh '''
+                        mkdir -p ~/.ssh
+                        if [ ! -f ~/.ssh/my-key.pem ]; then
+                            cp $PEM_FILE ~/.ssh/my-key.pem
+                            chmod 400 ~/.ssh/my-key.pem
+                        else
+                            echo "File already exists, skipping copy and chmod steps."
+                        fi
+                    '''
+                }
             }
         }
         stage('Terraform setup') {
@@ -31,53 +44,52 @@ pipeline {
                 sh 'cd tf && terraform init'
             }
         }
-
         stage('Terraform Plan') {
-          withInfisical(configuration: [infisicalCredentialId: '8541b060-8664-484a-bd11-1c636edf74aa', infisicalEnvironmentSlug: 'jenkins', infisicalProjectSlug: 'final-tsi-project-oy-el', infisicalUrl: 'https://infisical.n1al.com/'], infisicalSecrets: [infisicalSecret(includeImports: true, path: '/', secretValues: [[infisicalKey: 'API_URL'], [infisicalKey: 'AUTH0_BASE_URL'], [infisicalKey: 'AUTH0_CLIENT_ID'], [infisicalKey: 'AUTH0_CLIENT_SECRET'], [infisicalKey: 'AUTH0_ISSUER_BASE_URL'], [infisicalKey: 'AUTH0_SECRET'], [infisicalKey: 'MONGO_URI'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_ID'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_SECRET']])]) {
             steps {
                 withCredentials([
                     string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
-                ]) {                    
-                script {
-                        def tfVars = "-var 'access_key=${AWS_ACCESS_KEY_ID}' -var 'secret_key=${AWS_SECRET_ACCESS_KEY}' -var 'my_name=nial' -var 'my_email=nmccallister@softwareinstitute.com' -var 'domain=netbuildertraining.com'"
-                        sh "cd tf && terraform plan ${tfVars}"
+                ]) {
+                    withInfisical(configuration: [infisicalCredentialId: '8541b060-8664-484a-bd11-1c636edf74aa', infisicalEnvironmentSlug: 'jenkins', infisicalProjectSlug: 'final-tsi-project-oy-el', infisicalUrl: 'https://infisical.n1al.com'], infisicalSecrets: [infisicalSecret(includeImports: true, path: '/', secretValues: [[infisicalKey: 'TEST'], [infisicalKey: 'MONGO_URI'], [infisicalKey: 'AUTH0_SECRET'], [infisicalKey: 'AUTH0_ISSUER_BASE_URL'], [infisicalKey: 'AUTH0_CLIENT_SECRET'], [infisicalKey: 'AUTH0_CLIENT_ID'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_SECRET'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_ID'], [infisicalKey: 'AUTH0_BASE_URL']])]) {
+                        script {
+                            def tfVars = "-var 'access_key=${AWS_ACCESS_KEY_ID}' -var 'secret_key=${AWS_SECRET_ACCESS_KEY}' -var 'my_name=nial' -var 'my_email=nmccallister@softwareinstitute.com' -var 'domain=netbuildertraining.com' -var 'MACHINE_IDENTITY_CLIENT_ID=${MACHINE_IDENTITY_CLIENT_ID}' -var 'MACHINE_IDENTITY_CLIENT_SECRET=${MACHINE_IDENTITY_CLIENT_SECRET}' -var 'AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}' -var 'AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}' -var 'AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}' -var 'MONGO_URI=${MONGO_URI}' -var 'test=${TEST}' -var 'AUTH0_SECRET=${AUTH0_SECRET}' -var 'pem_path=~/.ssh/my-key.pem' -var 'AUTH0_BASE_URL=${AUTH0_BASE_URL}'"
+                            sh "cd tf && terraform plan ${tfVars}"
+                        }
                     }
                 }
             }
-          }
         }
         stage('Terraform Pre-emptive Destroy') {
-          withInfisical(configuration: [infisicalCredentialId: '8541b060-8664-484a-bd11-1c636edf74aa', infisicalEnvironmentSlug: 'jenkins', infisicalProjectSlug: 'final-tsi-project-oy-el', infisicalUrl: 'https://infisical.n1al.com/'], infisicalSecrets: [infisicalSecret(includeImports: true, path: '/', secretValues: [[infisicalKey: 'API_URL'], [infisicalKey: 'AUTH0_BASE_URL'], [infisicalKey: 'AUTH0_CLIENT_ID'], [infisicalKey: 'AUTH0_CLIENT_SECRET'], [infisicalKey: 'AUTH0_ISSUER_BASE_URL'], [infisicalKey: 'AUTH0_SECRET'], [infisicalKey: 'MONGO_URI'], [infisicalKey: 'AWS_CLIENT_ID'], [infisicalKey: 'AWS_CLIENT_SECRET']])]) {
             steps {
                 withCredentials([
                     string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
-                ]) {                    
-                script {
-                        def tfVars = "-var 'access_key=${AWS_ACCESS_KEY_ID}' -var 'secret_key=${AWS_SECRET_ACCESS_KEY}' -var 'my_name=nial' -var 'my_email=nmccallister@softwareinstitute.com' -var 'domain=netbuildertraining.com'"
-                        sh "terraform destroy ${tfVars} -auto-approve"
+                ]) {
+                    withInfisical(configuration: [infisicalCredentialId: '8541b060-8664-484a-bd11-1c636edf74aa', infisicalEnvironmentSlug: 'jenkins', infisicalProjectSlug: 'final-tsi-project-oy-el', infisicalUrl: 'https://infisical.n1al.com'], infisicalSecrets: [infisicalSecret(includeImports: true, path: '/', secretValues: [[infisicalKey: 'TEST'], [infisicalKey: 'MONGO_URI'], [infisicalKey: 'AUTH0_SECRET'], [infisicalKey: 'AUTH0_ISSUER_BASE_URL'], [infisicalKey: 'AUTH0_CLIENT_SECRET'], [infisicalKey: 'AUTH0_CLIENT_ID'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_SECRET'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_ID'], [infisicalKey: 'AUTH0_BASE_URL']])]) {
+                        script {
+                            def tfVars = "-var 'access_key=${AWS_ACCESS_KEY_ID}' -var 'secret_key=${AWS_SECRET_ACCESS_KEY}' -var 'my_name=nial' -var 'my_email=nmccallister@softwareinstitute.com' -var 'domain=netbuildertraining.com' -var 'MACHINE_IDENTITY_CLIENT_ID=${MACHINE_IDENTITY_CLIENT_ID}' -var 'MACHINE_IDENTITY_CLIENT_SECRET=${MACHINE_IDENTITY_CLIENT_SECRET}' -var 'AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}' -var 'AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}' -var 'AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}' -var 'MONGO_URI=${MONGO_URI}' -var 'test=${TEST}' -var 'AUTH0_SECRET=${AUTH0_SECRET}' -var 'pem_path=~/.ssh/my-key.pem' -var 'AUTH0_BASE_URL=${AUTH0_BASE_URL}'"
+                            sh "cd tf && terraform destroy ${tfVars} -auto-approve"
+                        }
                     }
                 }
             }
-          }
         }
         stage('Terraform Apply') {
-          withInfisical(configuration: [infisicalCredentialId: '8541b060-8664-484a-bd11-1c636edf74aa', infisicalEnvironmentSlug: 'jenkins', infisicalProjectSlug: 'final-tsi-project-oy-el', infisicalUrl: 'https://infisical.n1al.com/'], infisicalSecrets: [infisicalSecret(includeImports: true, path: '/', secretValues: [[infisicalKey: 'API_URL'], [infisicalKey: 'AUTH0_BASE_URL'], [infisicalKey: 'AUTH0_CLIENT_ID'], [infisicalKey: 'AUTH0_CLIENT_SECRET'], [infisicalKey: 'AUTH0_ISSUER_BASE_URL'], [infisicalKey: 'AUTH0_SECRET'], [infisicalKey: 'MONGO_URI'], [infisicalKey: 'AWS_CLIENT_ID'], [infisicalKey: 'AWS_CLIENT_SECRET']])]) {
             steps {
                 withCredentials([
                     string(credentialsId: 'aws_access_key_id', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
-                ]) {                    
-                script {
-                        def tfVars = "-var 'access_key=${AWS_ACCESS_KEY_ID}' -var 'secret_key=${AWS_SECRET_ACCESS_KEY}' -var 'my_name=nial' -var 'my_email=nmccallister@softwareinstitute.com' -var 'domain=netbuildertraining.com'"
-                        sh "terraform apply ${tfVars} -auto-approve"
+                ]) {
+                    withInfisical(configuration: [infisicalCredentialId: '8541b060-8664-484a-bd11-1c636edf74aa', infisicalEnvironmentSlug: 'jenkins', infisicalProjectSlug: 'final-tsi-project-oy-el', infisicalUrl: 'https://infisical.n1al.com'], infisicalSecrets: [infisicalSecret(includeImports: true, path: '/', secretValues: [[infisicalKey: 'TEST'], [infisicalKey: 'MONGO_URI'], [infisicalKey: 'AUTH0_SECRET'], [infisicalKey: 'AUTH0_ISSUER_BASE_URL'], [infisicalKey: 'AUTH0_CLIENT_SECRET'], [infisicalKey: 'AUTH0_CLIENT_ID'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_SECRET'], [infisicalKey: 'MACHINE_IDENTITY_CLIENT_ID'], [infisicalKey: 'AUTH0_BASE_URL']])]) {
+                        script {
+                            def tfVars = "-var 'access_key=${AWS_ACCESS_KEY_ID}' -var 'secret_key=${AWS_SECRET_ACCESS_KEY}' -var 'my_name=nial' -var 'my_email=nmccallister@softwareinstitute.com' -var 'domain=netbuildertraining.com' -var 'MACHINE_IDENTITY_CLIENT_ID=${MACHINE_IDENTITY_CLIENT_ID}' -var 'MACHINE_IDENTITY_CLIENT_SECRET=${MACHINE_IDENTITY_CLIENT_SECRET}' -var 'AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}' -var 'AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}' -var 'AUTH0_ISSUER_BASE_URL=${AUTH0_ISSUER_BASE_URL}' -var 'MONGO_URI=${MONGO_URI}' -var 'test=${TEST}' -var 'AUTH0_SECRET=${AUTH0_SECRET}' -var 'pem_path=~/.ssh/my-key.pem' -var 'AUTH0_BASE_URL=${AUTH0_BASE_URL}'"
+                            sh "cd tf && terraform apply ${tfVars} -auto-approve"
+                        }
                     }
                 }
             }
-          }
         }
-    }    
+    }
     post {
         success {
             // Notify success
